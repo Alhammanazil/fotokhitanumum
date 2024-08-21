@@ -19,52 +19,12 @@ $row = $result->fetch_assoc();
 preg_match("/^enum\(\'(.*)\'\)$/", $row['Type'], $matches);
 $enum_values = explode("','", $matches[1]);
 
-// Menangani pengiriman formulir untuk memperbarui tanggal
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  if (isset($_POST['pendaftaran'])) {
-    if (isset($_POST['dibuka']) && isset($_POST['ditutup'])) {
-      $dibuka = date('Y-m-d H:i:s', strtotime($_POST['dibuka']));
-      $ditutup = date('Y-m-d H:i:s', strtotime($_POST['ditutup']));
-
-      // Menulis tanggal baru ke file dates_config.php
-      $config_content = "<?php\n";
-      $config_content .= "\$dibuka = \"$dibuka\";\n";
-      $config_content .= "\$ditutup = \"$ditutup\";\n";
-      $config_content .= "\$pelaksanaan = \"$pelaksanaan\";\n"; // Pastikan ini tetap ada
-      $config_content .= "?>";
-
-      file_put_contents('../config/dates_config.php', $config_content);
-      echo "<script>alert('Tanggal pendaftaran telah diperbarui');</script>";
-      // Muat ulang untuk memuat tanggal baru
-      header("Refresh:0");
-    }
-  } elseif (isset($_POST['pelaksanaan'])) {
-    if (isset($_POST['pelaksanaan'])) {
-      $pelaksanaan = date('Y-m-d H:i:s', strtotime($_POST['pelaksanaan']));
-
-      // Menulis tanggal pelaksanaan baru ke file dates_config.php
-      $config_content = "<?php\n";
-      $config_content .= "\$dibuka = \"$dibuka\";\n"; // Pastikan ini tetap ada
-      $config_content .= "\$ditutup = \"$ditutup\";\n"; // Pastikan ini tetap ada
-      $config_content .= "\$pelaksanaan = \"$pelaksanaan\";\n";
-
-      file_put_contents('../config/dates_config.php', $config_content);
-      echo "<script>alert('Tanggal pelaksanaan telah diperbarui');</script>";
-      // Muat ulang untuk memuat tanggal baru
-      header("Refresh:0");
-    }
-  }
-}
-
 // Mengambil semua pengguna
 $sql = "SELECT * FROM users";
 $hasil = $conn_foto->query($sql);
 
-setlocale(LC_TIME, 'id_ID.UTF-8'); // Mengatur locale ke bahasa Indonesia
-
 require_once 'header.php';
 ?>
-
 
 <style>
   .date-range {
@@ -143,8 +103,6 @@ require_once 'header.php';
   </div>
   <!-- Akhir Data Admin -->
 </div>
-
-
 
 <?php
 require_once 'footer.php';

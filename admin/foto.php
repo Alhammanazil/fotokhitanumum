@@ -115,7 +115,7 @@ $nomor_peserta = getNomorPeserta($conn_ku);
             <form id="participantForm">
                 <!-- Tombol Kembali ke Dashboard -->
                 <div class="text-left mb-4">
-                    <a href="dashboard.php" class="btn btn-secondary">⬅ Kembali</a>
+                    <a href="dashboard.php" style="background: #3C5B6F;" class="btn text-white">⬅ Kembali</a>
                 </div>
 
                 <!-- Nama Operator [Hidden] -->
@@ -208,7 +208,7 @@ $nomor_peserta = getNomorPeserta($conn_ku);
         // Fungsi untuk menangkap gambar dan menggabungkannya dengan template
         captureButton.addEventListener('click', () => {
             const twibbon = new Image();
-            twibbon.src = '../assets/twibbon.jfif'; // Ganti dengan path ke template Anda
+            twibbon.src = '../assets/twibbon.jfif';
 
             twibbon.onload = () => {
                 // Mengatur ukuran kanvas sesuai dengan ukuran template

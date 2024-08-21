@@ -63,7 +63,7 @@ function check_login()
 // Fungsi untuk mengambil nomor peserta dari database 'khitanumum'
 function getNomorPeserta($conn_ku)
 {
-  $query = "SELECT no_peserta FROM pendaftar";
+  $query = "SELECT no_peserta FROM pendaftar WHERE status_pendaftaran_id = 2";
   $result = mysqli_query($conn_ku, $query);
 
   $nomor_peserta = [];

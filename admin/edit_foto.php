@@ -8,7 +8,7 @@ if (!check_login()) {
 
 // Cek role
 if ($_SESSION['user']['role'] !== 'master' && $_SESSION['user']['role'] !== 'admin') {
-    header("Location: dashboard.php"); // atau halaman lain yang sesuai
+    header("Location: dashboard.php");
     exit();
 }
 
@@ -45,6 +45,8 @@ if (!$foto) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <!-- SweetAlert2 -->
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.4/dist/sweetalert2.min.css" rel="stylesheet">
+    <!-- JsBarcode -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 
     <style>
         @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap");
@@ -130,7 +132,7 @@ if (!$foto) {
             <form id="participantForm">
                 <!-- Tombol Kembali ke Dashboard -->
                 <div class="text-left mb-4">
-                    <a href="dashboard.php" class="btn btn-secondary">⬅ Kembali</a>
+                    <a href="dashboard.php" style="background: #3C5B6F;" class="btn text-white">⬅ Kembali</a>
                 </div>
 
                 <!-- Field Nomor Peserta -->
@@ -201,7 +203,7 @@ if (!$foto) {
         // Fungsi untuk menangkap gambar dan menggabungkannya dengan template
         captureButton.addEventListener('click', () => {
             const twibbon = new Image();
-            twibbon.src = '../assets/twibbon.jfif'; // Ganti dengan path ke template Anda
+            twibbon.src = '../assets/twibbon.jfif';
 
             twibbon.onload = () => {
                 // Mengatur ukuran kanvas sesuai dengan ukuran template
@@ -211,39 +213,51 @@ if (!$foto) {
                 // Menggambar template terlebih dahulu
                 context.drawImage(twibbon, 0, 0, canvas.width, canvas.height);
 
-                // Gambar dari video (kamera)
-                const videoWidth = video.videoWidth;
-                const videoHeight = video.videoHeight;
+                // Simpan status canvas sebelum melakukan clip
+                context.save();
 
-                // Hitung proporsi untuk menempatkan gambar dalam lingkaran pada template
+                // Gambar dari video (kamera) di dalam lingkaran
                 const centerX = canvas.width / 2;
                 const centerY = canvas.height / 2 - 17;
                 const radius = 45; // Sesuaikan dengan radius lingkaran pada template
 
+                // Membuat lingkaran dan melakukan clipping
                 context.beginPath();
                 context.arc(centerX, centerY, radius, 0, 2 * Math.PI);
                 context.closePath();
-                context.clip();
+                context.clip(); // Klip untuk gambar kamera
 
-                // Gambar video di lingkaran
-                const scale = Math.max((radius * 2) / videoWidth, (radius * 2) / videoHeight);
-                const scaledWidth = videoWidth * scale;
-                const scaledHeight = videoHeight * scale;
+                // Gambar video di lingkaran dengan ukuran yang disesuaikan
+                context.drawImage(video, centerX - radius, centerY - radius, radius * 2, radius * 2);
 
-                context.drawImage(video, centerX - scaledWidth / 2, centerY - scaledHeight / 2, scaledWidth, scaledHeight);
+                // Kembalikan status canvas ke sebelum clip
+                context.restore();
 
-                // Opsional: Menambahkan teks untuk Nama
-                const name = document.getElementById('nama_lengkap').value;
-
-                context.font = 'bold 16px Poppins';
+                // Tambahkan Nomor Peserta
+                const noPeserta = document.getElementById('no_peserta').value;
+                context.font = 'bold 14px Arial';
                 context.fillStyle = '#000';
-                context.textAlign = 'center';
-                context.fillText(name, canvas.width / 2, canvas.height - 100); // Atur posisi Y sesuai kebutuhan
+                context.fillText(noPeserta, 85, 263); // Sesuaikan koordinat x, y
 
-                // Tampilkan tombol simpan gambar
-                saveButton.style.display = 'block';
+                // Nama Peserta
+                const name = document.getElementById('nama_lengkap').value;
+                console.log(name);
+                context.font = 'bold 11px Arial';
+                const textWidth = context.measureText(name).width;
+                const centerXText = (canvas.width / 2) - (textWidth / 2);
+                context.fillText(name, centerXText, 280); // Sesuaikan koordinat x, y
 
-                // Konversi gambar ke base64 dan simpan ke input hidden
+                // Barcode
+                const barcodeCanvas = document.createElement('canvas');
+                JsBarcode(barcodeCanvas, noPeserta, {
+                    format: "CODE128",
+                    displayValue: false,
+                    width: 1,
+                    height: 30,
+                    margin: 0
+                });
+                context.drawImage(barcodeCanvas, 42, 296, 130, 30);
+
                 imageDataInput.value = canvas.toDataURL('image/png');
             };
         });
@@ -279,7 +293,7 @@ if (!$foto) {
                 })
                 .then(response => response.text())
                 .then(resultText => {
-                    console.log("Server Response:", resultText); // Tambahkan logging untuk melihat respon dari server
+                    console.log("Server Response:", resultText);
                     if (resultText.trim() === 'success') {
                         Swal.fire({
                             icon: 'success',

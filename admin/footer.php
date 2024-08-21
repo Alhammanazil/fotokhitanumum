@@ -29,7 +29,7 @@ $user_role = $_SESSION['user']['role'] ?? null;
 
       <!-- Logout (Tampil untuk semua role) -->
       <li class="nav-item">
-        <a class="nav-link" href="../config/logout.php" id="logout-link" onclick="return confirm('Apakah Anda yakin ingin keluar?')">
+        <a class="nav-link" href="#" id="logout-link">
           <i class="fas fa-sign-out-alt text-center d-block"></i>
           <span>Logout</span>
         </a>
@@ -169,6 +169,117 @@ $user_role = $_SESSION['user']['role'] ?? null;
 </script>
 
 <!-- Akhir Halaman Dashboard -->
+
+
+<!-- Halaman Pengaturan -->
+<script>
+  $(document).ready(function() {
+    // Mengubah role
+    $('.role-dropdown').change(function() {
+      var userId = $(this).data('id');
+      var newRole = $(this).val();
+
+      $.ajax({
+        url: '../config/update_user.php',
+        type: 'POST',
+        data: {
+          id: userId,
+          type: 'role',
+          value: newRole
+        },
+        success: function(response) {
+          var result = JSON.parse(response);
+          if (result.status === 'success') {
+            Swal.fire({
+              icon: 'success',
+              title: 'Berhasil!',
+              text: 'Role berhasil diperbarui.',
+              timer: 2000,
+              showConfirmButton: false
+            });
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Gagal!',
+              text: 'Gagal memperbarui role: ' + result.message,
+            });
+          }
+        },
+        error: function() {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'Terjadi kesalahan saat memperbarui role.',
+          });
+        }
+      });
+    });
+
+    // Mengubah akses
+    $('.akses-toggle').change(function() {
+      var userId = $(this).data('id');
+      var newAkses = $(this).is(':checked') ? 1 : 0;
+
+      $.ajax({
+        url: '../config/update_user.php',
+        type: 'POST',
+        data: {
+          id: userId,
+          type: 'akses',
+          value: newAkses
+        },
+        success: function(response) {
+          var result = JSON.parse(response);
+          if (result.status === 'success') {
+            Swal.fire({
+              icon: 'success',
+              title: 'Berhasil!',
+              text: 'Akses berhasil diperbarui.',
+              timer: 2000,
+              showConfirmButton: false
+            });
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Gagal!',
+              text: 'Gagal memperbarui akses: ' + result.message,
+            });
+          }
+        },
+        error: function() {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'Terjadi kesalahan saat memperbarui akses.',
+          });
+        }
+      });
+    });
+  });
+</script>
+<!-- Akhir Halaman Pengaturan -->
+
+<!-- Logout -->
+<script>
+  document.getElementById('logout-link').addEventListener('click', function(event) {
+    event.preventDefault(); // Mencegah link melakukan aksi default
+
+    Swal.fire({
+      title: 'Logout',
+      text: "Anda akan keluar dari sesi saat ini.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Ya, keluar',
+      cancelButtonText: 'Batal'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = '../config/logout.php';
+      }
+    });
+  });
+</script>
 
 </body>
 

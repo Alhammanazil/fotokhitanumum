@@ -71,16 +71,18 @@ require_once 'header.php';
                                         <i class="fa-solid fa-square-poll-horizontal"></i>
                                     </a> -->
 
-                                    <!-- Edit -->
-                                    <a href="edit_foto.php?id=<?= $foto['id']; ?>" class="btn btn-warning">
-                                        <i class="fas fa-edit icon-small"></i>
-                                    </a>
+                                    <?php if ($_SESSION['user']['role'] === 'master'): ?>
+                                        <!-- Edit -->
+                                        <a href="edit_foto.php?id=<?= $foto['id']; ?>" class="btn btn-warning">
+                                            <i class="fas fa-edit icon-small"></i>
+                                        </a>
 
-                                    <!-- Hapus -->
-                                    <a href="javascript:void(0);" class="btn btn-danger"
-                                        onclick="confirmDelete('<?= $foto['id']; ?>')">
-                                        <i class="fas fa-trash-alt icon-small"></i>
-                                    </a>
+                                        <!-- Hapus -->
+                                        <a href="javascript:void(0);" class="btn btn-danger"
+                                            onclick="confirmDelete('<?= $foto['id']; ?>')">
+                                            <i class="fas fa-trash-alt icon-small"></i>
+                                        </a>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
 
