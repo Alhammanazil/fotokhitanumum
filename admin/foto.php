@@ -163,13 +163,14 @@ $nomor_peserta = getNomorPeserta($conn_ku);
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.4/dist/sweetalert2.all.min.js"></script>
+    <!-- JsBarcode -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 
     <script>
-        // Inisialisasi Select2
         $(document).ready(function() {
+            // Inisialisasi Select2
             $('#no_peserta').select2().on('select2:select', function(e) {
                 const noPeserta = $(this).val();
-
                 if (noPeserta) {
                     fetch(`get_nama_peserta.php?no_peserta=${noPeserta}`)
                         .then(response => response.json())
@@ -231,27 +232,43 @@ $nomor_peserta = getNomorPeserta($conn_ku);
                 context.closePath();
                 context.clip();
 
-                // Gambar video di lingkaran
-                const scale = Math.max((radius * 2) / videoWidth, (radius * 2) / videoHeight);
-                const scaledWidth = videoWidth * scale;
-                const scaledHeight = videoHeight * scale;
+                // Gambar video di lingkaran dengan ukuran yang disesuaikan
+                context.drawImage(video, centerX - 50, centerY - 50, 100, 100);
 
-                context.drawImage(video, centerX - scaledWidth / 2, centerY - scaledHeight / 2, scaledWidth, scaledHeight);
+                // Menghapus kliping lingkaran setelah menggambar foto
+                context.restore();
 
-                // Opsional: Menambahkan teks untuk Nama
-                const name = document.getElementById('nama_lengkap').value;
-
-                context.font = 'bold 16px Poppins';
+                // Tambahkan Nomor Peserta
+                const noPeserta = document.getElementById('no_peserta').value;
+                context.font = 'bold 14px Arial';
                 context.fillStyle = '#000';
-                context.textAlign = 'center';
-                context.fillText(name, canvas.width / 2, canvas.height - 100); // Atur posisi Y sesuai kebutuhan
+                context.fillText(noPeserta, 86, 263); // Posisi x, y yang sudah Anda sesuaikan
+
+                // Tambahkan Nama Peserta
+                const name = document.getElementById('nama_lengkap').value;
+                const textWidth = context.measureText(name).width;
+                const centerXText = (canvas.width / 2) - (textWidth / 2);
+                context.font = 'bold 14px Arial';
+                context.fillText(name, centerXText, 280); // Posisi Y sesuai kebutuhan
+
+                // Tambahkan barcode
+                const barcodeCanvas = document.createElement('canvas');
+                JsBarcode(barcodeCanvas, noPeserta, {
+                    format: "CODE128",
+                    displayValue: false,
+                    width: 1,
+                    height: 10,
+                    margin: 0
+                });
+                context.drawImage(barcodeCanvas, 41.5, 296, 130, 30); // Sesuaikan posisi x, y, width, height sesuai kebutuhan
 
                 // Tampilkan tombol simpan gambar
                 saveButton.style.display = 'block';
             };
         });
 
-        // menyimpan gambar
+
+        // Menyimpan gambar
         saveButton.addEventListener('click', async (e) => {
             e.preventDefault(); // Mencegah pengiriman ulang form
 
@@ -330,8 +347,5 @@ $nomor_peserta = getNomorPeserta($conn_ku);
         });
     </script>
 </body>
-
-</html>
-
 
 </html>

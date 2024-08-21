@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 20 Agu 2024 pada 10.52
+-- Waktu pembuatan: 21 Agu 2024 pada 11.22
 -- Versi server: 10.4.28-MariaDB
 -- Versi PHP: 8.2.4
 
@@ -30,18 +30,20 @@ SET time_zone = "+00:00";
 CREATE TABLE `foto` (
   `id` int(11) NOT NULL,
   `no_peserta` varchar(255) NOT NULL,
+  `nama_lengkap` varchar(255) DEFAULT NULL,
   `nama_operator` varchar(255) DEFAULT NULL,
+  `file` varchar(255) DEFAULT NULL,
   `created` timestamp NOT NULL DEFAULT current_timestamp(),
-  `edited` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `file` varchar(255) DEFAULT NULL
+  `edited` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data untuk tabel `foto`
 --
 
-INSERT INTO `foto` (`id`, `no_peserta`, `nama_operator`, `created`, `edited`, `file`) VALUES
-(7, '460059', 'MIKASA', '2024-08-20 08:35:52', '2024-08-20 08:35:52', 'foto_460059.png');
+INSERT INTO `foto` (`id`, `no_peserta`, `nama_lengkap`, `nama_operator`, `file`, `created`, `edited`) VALUES
+(30, '460058', 'test', 'Albert Einstein', 'foto_460058.png', '2024-08-21 04:34:02', '2024-08-21 04:34:02'),
+(38, '460057', 'MUSASHI', 'Ahmad', 'foto_460057.png', '2024-08-21 05:00:53', '2024-08-21 07:00:47');
 
 -- --------------------------------------------------------
 
@@ -93,7 +95,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT untuk tabel `foto`
 --
 ALTER TABLE `foto`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 
 --
 -- AUTO_INCREMENT untuk tabel `users`
