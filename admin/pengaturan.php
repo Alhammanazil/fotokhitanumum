@@ -7,10 +7,10 @@ if (!check_login()) {
 }
 
 // Cek role
-// if ($_SESSION['user']['role'] !== 'master') {
-//   header("Location: dashboard.php");
-//   exit();
-// }
+if ($_SESSION['user']['role'] !== 'master' && $_SESSION['user']['role'] !== 'admin') {
+  header("Location: dashboard.php"); // atau halaman lain yang sesuai
+  exit();
+}
 
 // Ambil data enum dari kolom role
 $query = "SHOW COLUMNS FROM users LIKE 'role'";
@@ -102,50 +102,50 @@ require_once 'header.php';
     </div>
   </div>
 
-    <!-- Data Admin -->
-    <div class="table-responsive mt-3 mb-5">
-      <h2 class="text-left">Data Admin</h2>
-      <table id="usersTable" class="table table-bordered table-hover table-striped">
-        <thead class="table-dark">
+  <!-- Data Admin -->
+  <div class="table-responsive mt-3 mb-5">
+    <h2 class="text-left">Data Admin</h2>
+    <table id="usersTable" class="table table-bordered table-hover table-striped">
+      <thead class="table-dark">
+        <tr>
+          <th class="text-center align-middle">No</th>
+          <th class="text-center align-middle">Nama Lengkap</th>
+          <th class="text-center align-middle">Username</th>
+          <th class="text-center align-middle" style="min-width: 130px">Role</th>
+          <th class="text-center align-middle">Akses</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php
+        $no = 1;
+        while ($user = $hasil->fetch_assoc()) : ?>
           <tr>
-            <th class="text-center align-middle">No</th>
-            <th class="text-center align-middle">Nama Lengkap</th>
-            <th class="text-center align-middle">Username</th>
-            <th class="text-center align-middle" style="min-width: 130px">Role</th>
-            <th class="text-center align-middle">Akses</th>
+            <td class="text-center align-middle"><?= $no; ?></td>
+            <td class="text-center align-middle"><?= $user['nama_lengkap']; ?></td>
+            <td class="text-center align-middle"><?= $user['username']; ?></td>
+            <td class="text-center align-middle">
+              <select name="role" class="form-select role-dropdown" data-id="<?= $user['id'] ?>">
+                <?php foreach ($enum_values as $value) : ?>
+                  <option value="<?= $value ?>" <?= $user['role'] == $value ? 'selected' : '' ?>><?= ucfirst($value) ?></option>
+                <?php endforeach; ?>
+              </select>
+            </td>
+            <td class="text-center align-middle">
+              <div class="form-check form-switch">
+                <input class="form-check-input akses-toggle" type="checkbox" role="switch" id="akses-<?= $user['id'] ?>" <?= $user['akses'] ? 'checked' : '' ?> data-id="<?= $user['id'] ?>">
+              </div>
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          <?php
-          $no = 1;
-          while ($user = $hasil->fetch_assoc()) : ?>
-            <tr>
-              <td class="text-center align-middle"><?= $no; ?></td>
-              <td class="text-center align-middle"><?= $user['nama_lengkap']; ?></td>
-              <td class="text-center align-middle"><?= $user['username']; ?></td>
-              <td class="text-center align-middle">
-                <select name="role" class="form-select role-dropdown" data-id="<?= $user['id'] ?>">
-                  <?php foreach ($enum_values as $value) : ?>
-                    <option value="<?= $value ?>" <?= $user['role'] == $value ? 'selected' : '' ?>><?= ucfirst($value) ?></option>
-                  <?php endforeach; ?>
-                </select>
-              </td>
-              <td class="text-center align-middle">
-                <div class="form-check form-switch">
-                  <input class="form-check-input akses-toggle" type="checkbox" role="switch" id="akses-<?= $user['id'] ?>" <?= $user['akses'] ? 'checked' : '' ?> data-id="<?= $user['id'] ?>">
-                </div>
-              </td>
-            </tr>
-          <?php $no++;
-          endwhile; ?>
-        </tbody>
-      </table>
-    </div>
-    <!-- Akhir Data Admin -->
+        <?php $no++;
+        endwhile; ?>
+      </tbody>
+    </table>
   </div>
+  <!-- Akhir Data Admin -->
+</div>
 
 
 
-  <?php
-  require_once 'footer.php';
-  ?>
+<?php
+require_once 'footer.php';
+?>

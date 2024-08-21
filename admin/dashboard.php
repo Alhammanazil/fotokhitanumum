@@ -66,10 +66,10 @@ require_once 'header.php';
                                 <td class="text-center align-middle"><?= $foto['nama_operator']; ?></td>
                                 <td class="text-center align-middle">
                                     <!-- Preview -->
-                                    <a href="javascript:void(0);" class="btn btn-secondary"
+                                    <!-- <a href="javascript:void(0);" class="btn btn-secondary"
                                         onclick="generatePreview('<?= $foto['no_peserta']; ?>', '<?= $foto['nama_operator']; ?>', '<?= $displayImage; ?>')">
                                         <i class="fa-solid fa-square-poll-horizontal"></i>
-                                    </a>
+                                    </a> -->
 
                                     <!-- Edit -->
                                     <a href="edit_foto.php?id=<?= $foto['id']; ?>" class="btn btn-warning">
@@ -83,23 +83,6 @@ require_once 'header.php';
                                     </a>
                                 </td>
                             </tr>
-
-                            <!-- Modal untuk pratinjau gambar -->
-                            <div class="modal fade" id="previewModal" tabindex="-1" role="dialog" aria-labelledby="previewModalLabel" aria-hidden="true">
-                                <div class="modal-dialog modal-lg" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="previewModalLabel">Pratinjau Kartu Peserta</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                        <div class="modal-body text-center">
-                                            <canvas id="cardCanvas" style="width: 100%; max-width: 400px;"></canvas>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
 
                             <!-- Modal untuk menampilkan gambar -->
                             <div class="modal fade" id="fotoModal<?= $foto['id']; ?>" tabindex="-1" role="dialog" aria-labelledby="fotoModalLabel<?= $foto['id']; ?>" aria-hidden="true">
@@ -118,6 +101,23 @@ require_once 'header.php';
                                 </div>
                             </div>
 
+                            <!-- Modal untuk pratinjau kartu peserta -->
+                            <div class="modal fade" id="previewModal" tabindex="-1" role="dialog" aria-labelledby="previewModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="previewModalLabel">Pratinjau Kartu Peserta</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body text-center">
+                                            <canvas id="cardCanvas"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                         <?php
                             $no++;
                         endforeach;
@@ -128,61 +128,6 @@ require_once 'header.php';
         </div>
     </div>
 </div>
-
-<!-- JsBarcode -->
-<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-
-<script>
-    // Fungsi untuk generate pratinjau gambar dengan barcode
-    function generatePreview(noPeserta, namaOperator, imagePath) {
-        const canvas = document.getElementById('cardCanvas');
-        const context = canvas.getContext('2d');
-
-        // Gambar template ID Card
-        const templateImg = new Image();
-        templateImg.src = imagePath; // Gunakan path gambar yang dikirimkan dari PHP
-
-        templateImg.onload = () => {
-            canvas.width = templateImg.width;
-            canvas.height = templateImg.height;
-            context.drawImage(templateImg, 0, 0);
-
-            // Nomor Peserta
-            context.font = 'bold 14px Arial';
-            context.fillStyle = '#000';
-            context.fillText(noPeserta, 86, 263); // Posisi x, y yang sudah Anda sesuaikan
-
-            // Nama Peserta
-            context.font = 'bold 14px Arial';
-            // Mengukur lebar teks dan menghitung posisi x agar berada di tengah
-            const textWidth = context.measureText(namaOperator).width;
-            const centerX = (canvas.width / 2) - (textWidth / 2);
-
-            context.fillText(namaOperator, centerX, 280); // Menggambar nama di posisi tengah
-
-            // Barcode
-            const barcodeCanvas = document.createElement('canvas');
-            JsBarcode(barcodeCanvas, noPeserta, {
-                format: "CODE128",
-                displayValue: false,
-                width: 1,
-                height: 10,
-                margin: 0
-            });
-            context.drawImage(barcodeCanvas, 41.5, 296, 130, 30); // Sesuaikan posisi x, y, width, height
-
-            // Tampilkan modal
-            $('#previewModal').modal('show');
-        }
-    }
-
-    // Reset canvas ketika modal ditutup
-    $('#previewModal').on('hidden.bs.modal', function() {
-        const canvas = document.getElementById('cardCanvas');
-        const context = canvas.getContext('2d');
-        context.clearRect(0, 0, canvas.width, canvas.height);
-    });
-</script>
 
 <?php
 require_once 'footer.php';

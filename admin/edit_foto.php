@@ -6,6 +6,12 @@ if (!check_login()) {
     exit();
 }
 
+// Cek role
+if ($_SESSION['user']['role'] !== 'master' && $_SESSION['user']['role'] !== 'admin') {
+    header("Location: dashboard.php"); // atau halaman lain yang sesuai
+    exit();
+}
+
 // Ambil ID foto dari URL
 $id = isset($_GET['id']) ? $_GET['id'] : '';
 if (empty($id)) {
