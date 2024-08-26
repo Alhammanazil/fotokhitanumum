@@ -208,65 +208,69 @@ $nomor_peserta = getNomorPeserta($conn_ku);
         // Fungsi untuk menangkap gambar dan menggabungkannya dengan template
         captureButton.addEventListener('click', () => {
             const twibbon = new Image();
-            twibbon.src = '../assets/twibbon.jfif'; // Ganti dengan path ke template Anda
+            twibbon.src = '../assets/twibbon.png'; // Pastikan path ini benar
 
             twibbon.onload = () => {
-                // Mengatur ukuran kanvas sesuai dengan ukuran template
+                // Sesuaikan ukuran kanvas dengan ukuran twibbon
                 canvas.width = twibbon.width;
                 canvas.height = twibbon.height;
 
-                // Menggambar template terlebih dahulu
+                // Gambar twibbon (template)
                 context.drawImage(twibbon, 0, 0, canvas.width, canvas.height);
 
-                // Gambar dari video (kamera)
+                // Menghitung posisi untuk foto peserta
                 const videoWidth = video.videoWidth;
                 const videoHeight = video.videoHeight;
 
-                // Hitung proporsi untuk menempatkan gambar dalam lingkaran pada template
-                const centerX = canvas.width / 2;
-                const centerY = canvas.height / 2 - 17;
-                const radius = 45; // Sesuaikan dengan radius lingkaran pada template
+                // Menyesuaikan parameter ini untuk menempatkan foto di lingkaran tengah
+                const photoCenterX = canvas.width / 2 + 2; // Titik tengah X untuk foto
+                const photoCenterY = canvas.height / 2 - 57; // Titik tengah Y untuk foto
+                const photoRadius = 157; // Radius lingkaran yang disesuaikan
 
+                // Memotong area lingkaran untuk foto
+                context.save();
                 context.beginPath();
-                context.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-                context.closePath();
+                context.arc(photoCenterX, photoCenterY, photoRadius, 0, 2 * Math.PI);
                 context.clip();
 
-                // Gambar video di lingkaran dengan ukuran yang disesuaikan
-                context.drawImage(video, centerX - 50, centerY - 50, 100, 100);
+                // Gambar foto peserta di dalam lingkaran
+                context.drawImage(video, photoCenterX - photoRadius, photoCenterY - photoRadius, photoRadius * 2, photoRadius * 2);
+                context.restore(); // Kembalikan context untuk menghapus kliping
 
-                // Menghapus kliping lingkaran setelah menggambar foto
-                context.restore();
-
-                // Tambahkan Nomor Peserta
+                // Menambahkan "Nomor Peserta"
                 const noPeserta = document.getElementById('no_peserta').value;
-                context.font = 'bold 14px Arial';
+                context.font = 'bold 45px Arial'; // Ukuran font yang disesuaikan
                 context.fillStyle = '#000';
-                context.fillText(noPeserta, 86, 263); // Posisi x, y yang sudah Anda sesuaikan
+                context.fillText(noPeserta, (canvas.width / 2) - (context.measureText(noPeserta).width / 2), canvas.height - 255); // Teks diposisikan di tengah bawah
 
-                // Tambahkan Nama Peserta
+                // Menambahkan "Nama Peserta"
                 const name = document.getElementById('nama_lengkap').value;
-                const textWidth = context.measureText(name).width;
-                const centerXText = (canvas.width / 2) - (textWidth / 2);
-                context.font = 'bold 14px Arial';
-                context.fillText(name, centerXText, 280); // Posisi Y sesuai kebutuhan
+                context.font = 'bold 45px Arial'; // Ukuran font yang disesuaikan
+                const nameWidth = context.measureText(name).width;
+                context.fillText(name, (canvas.width / 2) - (context.measureText(name).width / 2), canvas.height - 190);
 
-                // Tambahkan barcode
+                // Tambahkan barcode di bawah nama
                 const barcodeCanvas = document.createElement('canvas');
                 JsBarcode(barcodeCanvas, noPeserta, {
                     format: "CODE128",
                     displayValue: false,
-                    width: 1,
-                    height: 10,
+                    width: 2, // Lebar garis barcode yang lebih tebal
+                    height: 60, // Tinggi barcode yang lebih besar agar lebih terlihat
                     margin: 0
                 });
-                context.drawImage(barcodeCanvas, 41.5, 296, 130, 30); // Sesuaikan posisi x, y, width, height sesuai kebutuhan
+
+                // Atur posisi dan ukuran barcode agar lebih sesuai
+                const barcodeWidth = 400; // Lebar barcode yang disesuaikan
+                const barcodeHeight = 80; // Tinggi barcode yang disesuaikan
+                const barcodeX = (canvas.width - barcodeWidth) / 2 - 2; // Pusatkan barcode secara horizontal
+                const barcodeY = canvas.height - 140; // Sesuaikan posisi Y sesuai kebutuhan
+
+                context.drawImage(barcodeCanvas, barcodeX, barcodeY, barcodeWidth, barcodeHeight);
 
                 // Tampilkan tombol simpan gambar
                 saveButton.style.display = 'block';
             };
         });
-
 
         // Menyimpan gambar
         saveButton.addEventListener('click', async (e) => {

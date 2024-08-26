@@ -195,7 +195,7 @@ if (!$foto) {
         // Fungsi untuk menangkap gambar dan menggabungkannya dengan template
         captureButton.addEventListener('click', () => {
             const twibbon = new Image();
-            twibbon.src = '../assets/twibbon.jfif'; // Ganti dengan path ke template Anda
+            twibbon.src = '../assets/twibbon.png'; // Ganti dengan path ke template Anda
 
             twibbon.onload = () => {
                 // Mengatur ukuran kanvas sesuai dengan ukuran template
