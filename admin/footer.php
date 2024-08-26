@@ -29,7 +29,7 @@ $user_role = $_SESSION['user']['role'] ?? null;
 
       <!-- Logout (Tampil untuk semua role) -->
       <li class="nav-item">
-        <a class="nav-link" href="../config/logout.php" id="logout-link" onclick="return confirm('Apakah Anda yakin ingin keluar?')">
+        <a class="nav-link" href="#" id="logout-link">
           <i class="fas fa-sign-out-alt text-center d-block"></i>
           <span>Logout</span>
         </a>
@@ -52,8 +52,6 @@ $user_role = $_SESSION['user']['role'] ?? null;
 <script src="https://cdn.datatables.net/2.1.2/js/dataTables.js"></script>
 <script src="https://cdn.datatables.net/2.1.2/js/dataTables.bootstrap5.js"></script>
 
-<!-- Include jQuery -->
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <!-- Include DataTables JS -->
 <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
 <!-- Include FixedColumns JS -->
@@ -66,6 +64,9 @@ $user_role = $_SESSION['user']['role'] ?? null;
 
 <!-- Font Awesome JS -->
 <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+<!-- JsBarcode -->
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 
 <!-- Halaman Dashboard -->
 <script>
@@ -115,7 +116,170 @@ $user_role = $_SESSION['user']['role'] ?? null;
   });
 </script>
 
+<script>
+  // Fungsi untuk generate pratinjau gambar dengan barcode
+  function generatePreview(noPeserta, namaOperator, imagePath) {
+    const canvas = document.getElementById('cardCanvas');
+    const context = canvas.getContext('2d');
+
+    // Gambar template ID Card
+    const templateImg = new Image();
+    templateImg.src = imagePath; // Gunakan path gambar yang dikirimkan dari PHP
+
+    templateImg.onload = () => {
+      canvas.width = templateImg.width;
+      canvas.height = templateImg.height;
+      context.drawImage(templateImg, 0, 0);
+
+      // Nomor Peserta
+      context.font = 'bold 14px Arial';
+      context.fillStyle = '#000';
+      context.fillText(noPeserta, 86, 263); // Posisi x, y yang sudah Anda sesuaikan
+
+      // Nama Peserta
+      context.font = 'bold 14px Arial';
+      // Mengukur lebar teks dan menghitung posisi x agar berada di tengah
+      const textWidth = context.measureText(namaOperator).width;
+      const centerX = (canvas.width / 2) - (textWidth / 2);
+
+      context.fillText(namaOperator, centerX, 280); // Menggambar nama di posisi tengah
+
+      // Barcode
+      const barcodeCanvas = document.createElement('canvas');
+      JsBarcode(barcodeCanvas, noPeserta, {
+        format: "CODE128",
+        displayValue: false,
+        width: 1,
+        height: 10,
+        margin: 0
+      });
+      context.drawImage(barcodeCanvas, 41.5, 296, 130, 30); // Sesuaikan posisi x, y, width, height
+
+      // Tampilkan modal
+      $('#previewModal').modal('show');
+    }
+  }
+
+  // Reset canvas ketika modal ditutup
+  $('#previewModal').on('hidden.bs.modal', function() {
+    const canvas = document.getElementById('cardCanvas');
+    const context = canvas.getContext('2d');
+    context.clearRect(0, 0, canvas.width, canvas.height);
+  });
+</script>
+
 <!-- Akhir Halaman Dashboard -->
+
+
+<!-- Halaman Pengaturan -->
+<script>
+  $(document).ready(function() {
+    // Mengubah role
+    $('.role-dropdown').change(function() {
+      var userId = $(this).data('id');
+      var newRole = $(this).val();
+
+      $.ajax({
+        url: '../config/update_user.php',
+        type: 'POST',
+        data: {
+          id: userId,
+          type: 'role',
+          value: newRole
+        },
+        success: function(response) {
+          var result = JSON.parse(response);
+          if (result.status === 'success') {
+            Swal.fire({
+              icon: 'success',
+              title: 'Berhasil!',
+              text: 'Role berhasil diperbarui.',
+              timer: 2000,
+              showConfirmButton: false
+            });
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Gagal!',
+              text: 'Gagal memperbarui role: ' + result.message,
+            });
+          }
+        },
+        error: function() {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'Terjadi kesalahan saat memperbarui role.',
+          });
+        }
+      });
+    });
+
+    // Mengubah akses
+    $('.akses-toggle').change(function() {
+      var userId = $(this).data('id');
+      var newAkses = $(this).is(':checked') ? 1 : 0;
+
+      $.ajax({
+        url: '../config/update_user.php',
+        type: 'POST',
+        data: {
+          id: userId,
+          type: 'akses',
+          value: newAkses
+        },
+        success: function(response) {
+          var result = JSON.parse(response);
+          if (result.status === 'success') {
+            Swal.fire({
+              icon: 'success',
+              title: 'Berhasil!',
+              text: 'Akses berhasil diperbarui.',
+              timer: 2000,
+              showConfirmButton: false
+            });
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Gagal!',
+              text: 'Gagal memperbarui akses: ' + result.message,
+            });
+          }
+        },
+        error: function() {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'Terjadi kesalahan saat memperbarui akses.',
+          });
+        }
+      });
+    });
+  });
+</script>
+<!-- Akhir Halaman Pengaturan -->
+
+<!-- Logout -->
+<script>
+  document.getElementById('logout-link').addEventListener('click', function(event) {
+    event.preventDefault(); // Mencegah link melakukan aksi default
+
+    Swal.fire({
+      title: 'Logout',
+      text: "Anda akan keluar dari sesi saat ini.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Ya, keluar',
+      cancelButtonText: 'Batal'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = '../config/logout.php';
+      }
+    });
+  });
+</script>
 
 </body>
 

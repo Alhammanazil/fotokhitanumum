@@ -115,7 +115,7 @@ $nomor_peserta = getNomorPeserta($conn_ku);
             <form id="participantForm">
                 <!-- Tombol Kembali ke Dashboard -->
                 <div class="text-left mb-4">
-                    <a href="dashboard.php" class="btn btn-secondary">⬅ Kembali</a>
+                    <a href="dashboard.php" style="background: #3C5B6F;" class="btn text-white">⬅ Kembali</a>
                 </div>
 
                 <!-- Nama Operator [Hidden] -->
@@ -267,8 +267,7 @@ $nomor_peserta = getNomorPeserta($conn_ku);
 
                 context.drawImage(barcodeCanvas, barcodeX, barcodeY, barcodeWidth, barcodeHeight);
 
-                // Tampilkan tombol simpan gambar
-                saveButton.style.display = 'block';
+                saveButton.style.display = 'inline-block';
             };
         });
 

@@ -21,7 +21,6 @@
   <!-- SweetAlert2 -->
   <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.4/dist/sweetalert2.min.css" rel="stylesheet">
 
-
   <link rel="icon" href="../assets/icon.png" type="image/x-icon">
   <style>
     @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap");
@@ -92,6 +91,17 @@
       background-color: #373A40;
       color: #F8F4E1;
     }
+
+    .modal-header {
+    z-index: 1051; /* Pastikan berada di atas elemen lain */
+  }
+  
+  #cardCanvas {
+    max-width: 100%;
+    max-height: calc(100vh - 200px); /* Pastikan canvas tidak meluap */
+    z-index: 1049; /* Di bawah header modal */
+  }
+
   </style>
 </head>
 
