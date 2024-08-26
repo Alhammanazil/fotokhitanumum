@@ -227,6 +227,19 @@ $nomor_peserta = getNomorPeserta($conn_ku);
                 const photoCenterY = canvas.height / 2 - 57; // Titik tengah Y untuk foto
                 const photoRadius = 157; // Radius lingkaran yang disesuaikan
 
+                // Tentukan rasio aspek video
+                const aspectRatio = videoWidth / videoHeight;
+
+                // Tentukan ukuran gambar yang akan diambil berdasarkan rasio aspek
+                let drawWidth, drawHeight;
+                if (aspectRatio > 1) {
+                    drawWidth = photoRadius * 2 * aspectRatio;
+                    drawHeight = photoRadius * 2;
+                } else {
+                    drawWidth = photoRadius * 2;
+                    drawHeight = photoRadius * 2 / aspectRatio;
+                }
+
                 // Memotong area lingkaran untuk foto
                 context.save();
                 context.beginPath();
@@ -234,20 +247,58 @@ $nomor_peserta = getNomorPeserta($conn_ku);
                 context.clip();
 
                 // Gambar foto peserta di dalam lingkaran
-                context.drawImage(video, photoCenterX - photoRadius, photoCenterY - photoRadius, photoRadius * 2, photoRadius * 2);
+                context.drawImage(video, photoCenterX - (drawWidth / 2), photoCenterY - (drawHeight / 2), drawWidth, drawHeight);
                 context.restore(); // Kembalikan context untuk menghapus kliping
+
+                // Menambahkan "Nama Peserta" dengan penyesuaian ukuran font dan posisi
+                const name = document.getElementById('nama_lengkap').value;
+                context.font = 'bold 30px Arial'; // Mulai dengan ukuran font standar
+
+                // Cek apakah nama muat dalam satu baris
+                let nameWidth = context.measureText(name).width;
+
+                if (nameWidth > canvas.width - 60) { // Jika nama terlalu panjang
+                    context.font = 'bold 25px Arial'; // Perkecil font
+
+                    nameWidth = context.measureText(name).width;
+
+                    if (nameWidth > canvas.width - 60) { // Jika masih terlalu panjang
+                        const words = name.split(" ");
+                        let firstLine = "";
+                        let secondLine = "";
+
+                        // Coba memecah nama menjadi dua baris
+                        for (let i = 0; i < words.length; i++) {
+                            if (context.measureText(firstLine + words[i]).width < canvas.width - 60) {
+                                firstLine += words[i] + " ";
+                            } else {
+                                secondLine += words[i] + " ";
+                            }
+                        }
+
+                        // Jika kedua baris masih terlalu panjang, perkecil lagi font-nya
+                        if (secondLine && context.measureText(secondLine).width > canvas.width - 60) {
+                            context.font = 'bold 25px Arial'; // Perkecil lagi
+                        }
+
+                        // Tampilkan nama dalam dua baris
+                        context.fillText(firstLine.trim(), (canvas.width / 2) - (context.measureText(firstLine.trim()).width / 2), canvas.height - 270);
+                        context.fillText(secondLine.trim(), (canvas.width / 2) - (context.measureText(secondLine.trim()).width / 2), canvas.height - 235);
+
+                    } else {
+                        // Jika cukup dengan font yang diperkecil
+                        context.fillText(name, (canvas.width / 2) - (context.measureText(name).width / 2), canvas.height - 255);
+                    }
+                } else {
+                    // Jika nama muat dalam satu baris dengan font default
+                    context.fillText(name, (canvas.width / 2) - (context.measureText(name).width / 2), canvas.height - 255);
+                }
 
                 // Menambahkan "Nomor Peserta"
                 const noPeserta = document.getElementById('no_peserta').value;
-                context.font = 'bold 45px Arial'; // Ukuran font yang disesuaikan
+                context.font = 'bold 40px Arial'; // Ukuran font yang disesuaikan
                 context.fillStyle = '#000';
-                context.fillText(noPeserta, (canvas.width / 2) - (context.measureText(noPeserta).width / 2), canvas.height - 255); // Teks diposisikan di tengah bawah
-
-                // Menambahkan "Nama Peserta"
-                const name = document.getElementById('nama_lengkap').value;
-                context.font = 'bold 45px Arial'; // Ukuran font yang disesuaikan
-                const nameWidth = context.measureText(name).width;
-                context.fillText(name, (canvas.width / 2) - (context.measureText(name).width / 2), canvas.height - 190);
+                context.fillText(noPeserta, (canvas.width / 2) - (context.measureText(noPeserta).width / 2), canvas.height - 190); // Teks diposisikan di tengah bawah
 
                 // Tambahkan barcode di bawah nama
                 const barcodeCanvas = document.createElement('canvas');

@@ -1,9 +1,14 @@
 <?php
 require 'config.php';
 
+// Cek apakah ada sesi yang aktif
+session_start();
+
 // Ambil data dari form
 $id = $_POST['id'];
 $image_data = $_POST['image'];
+// Mengambil nama admin/operator dari sesi login
+$admin = $_SESSION['user']['nama_lengkap'];
 
 // Menghapus bagian "data:image/png;base64,"
 $image_data = str_replace('data:image/png;base64,', '', $image_data);
@@ -17,8 +22,8 @@ $file_path = '../foto/' . $file_name;
 // Simpan file
 if (file_put_contents($file_path, $image_data)) {
     // Update data di database
-    $stmt = $conn_foto->prepare("UPDATE foto SET file = ? WHERE id = ?");
-    $stmt->bind_param("si", $file_name, $id);
+    $stmt = $conn_foto->prepare("UPDATE foto SET file = ?, nama_operator = ? WHERE id = ?");
+    $stmt->bind_param("ssi", $file_name, $admin, $id);
 
     if ($stmt->execute()) {
         echo 'success'; // Berikan respon sukses

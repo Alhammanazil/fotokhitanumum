@@ -150,7 +150,8 @@ if (!$foto) {
                 <!-- Field Nama Operator -->
                 <div class="form-group">
                     <label for="nama_operator">Nama Operator</label>
-                    <input type="text" id="nama_operator" name="nama_operator" class="form-control" value="<?= $foto['nama_operator']; ?>" readonly>
+                    <input type="text" id="nama_operator" name="nama_operator" class="form-control"
+                        value="<?= $_SESSION['user']['nama_lengkap']; ?>" readonly>
                 </div>
 
                 <!-- Kamera untuk mengambil foto -->
@@ -213,51 +214,111 @@ if (!$foto) {
                 // Menggambar template terlebih dahulu
                 context.drawImage(twibbon, 0, 0, canvas.width, canvas.height);
 
+                // Menghitung posisi untuk foto peserta
+                const videoWidth = video.videoWidth;
+                const videoHeight = video.videoHeight;
+
+                // Menyesuaikan parameter ini untuk menempatkan foto di lingkaran tengah
+                const photoCenterX = canvas.width / 2 + 2; // Titik tengah X untuk foto
+                const photoCenterY = canvas.height / 2 - 57; // Titik tengah Y untuk foto
+                const photoRadius = 157; // Radius lingkaran yang disesuaikan
+
+                // Tentukan rasio aspek video
+                const aspectRatio = videoWidth / videoHeight;
+
+                // Tentukan ukuran gambar yang akan diambil berdasarkan rasio aspek
+                let drawWidth, drawHeight;
+                if (aspectRatio > 1) {
+                    drawWidth = photoRadius * 2 * aspectRatio;
+                    drawHeight = photoRadius * 2;
+                } else {
+                    drawWidth = photoRadius * 2;
+                    drawHeight = photoRadius * 2 / aspectRatio;
+                }
+
                 // Simpan status canvas sebelum melakukan clip
                 context.save();
 
-                // Gambar dari video (kamera) di dalam lingkaran
-                const centerX = canvas.width / 2;
-                const centerY = canvas.height / 2 - 17;
-                const radius = 45; // Sesuaikan dengan radius lingkaran pada template
-
-                // Membuat lingkaran dan melakukan clipping
+                // Membuat lingkaran dan melakukan clipping untuk gambar kamera
                 context.beginPath();
-                context.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-                context.closePath();
-                context.clip(); // Klip untuk gambar kamera
+                context.arc(photoCenterX, photoCenterY, photoRadius, 0, 2 * Math.PI);
+                context.clip();
 
-                // Gambar video di lingkaran dengan ukuran yang disesuaikan
-                context.drawImage(video, centerX - radius, centerY - radius, radius * 2, radius * 2);
+                // Gambar dari video (kamera) di dalam lingkaran
+                context.drawImage(video, photoCenterX - (drawWidth / 2), photoCenterY - (drawHeight / 2), drawWidth, drawHeight);
 
                 // Kembalikan status canvas ke sebelum clip
                 context.restore();
 
-                // Tambahkan Nomor Peserta
-                const noPeserta = document.getElementById('no_peserta').value;
-                context.font = 'bold 14px Arial';
-                context.fillStyle = '#000';
-                context.fillText(noPeserta, 85, 263); // Sesuaikan koordinat x, y
-
-                // Nama Peserta
+                // Menambahkan "Nama Peserta" dengan penyesuaian ukuran font dan posisi
                 const name = document.getElementById('nama_lengkap').value;
-                console.log(name);
-                context.font = 'bold 11px Arial';
-                const textWidth = context.measureText(name).width;
-                const centerXText = (canvas.width / 2) - (textWidth / 2);
-                context.fillText(name, centerXText, 280); // Sesuaikan koordinat x, y
+                context.font = 'bold 35px Arial'; // Mulai dengan ukuran font standar
 
-                // Barcode
+                // Cek apakah nama muat dalam satu baris
+                let nameWidth = context.measureText(name).width;
+
+                if (nameWidth > canvas.width - 60) { // Jika nama terlalu panjang
+                    context.font = 'bold 25px Arial'; // Perkecil font
+
+                    nameWidth = context.measureText(name).width;
+
+                    if (nameWidth > canvas.width - 60) { // Jika masih terlalu panjang
+                        const words = name.split(" ");
+                        let firstLine = "";
+                        let secondLine = "";
+
+                        // Coba memecah nama menjadi dua baris
+                        for (let i = 0; i < words.length; i++) {
+                            if (context.measureText(firstLine + words[i]).width < canvas.width - 60) {
+                                firstLine += words[i] + " ";
+                            } else {
+                                secondLine += words[i] + " ";
+                            }
+                        }
+
+                        // Jika kedua baris masih terlalu panjang, perkecil lagi font-nya
+                        if (secondLine && context.measureText(secondLine).width > canvas.width - 60) {
+                            context.font = 'bold 25px Arial'; // Perkecil lagi
+                        }
+
+                        // Tampilkan nama dalam dua baris
+                        context.fillText(firstLine.trim(), (canvas.width / 2) - (context.measureText(firstLine.trim()).width / 2), canvas.height - 270);
+                        context.fillText(secondLine.trim(), (canvas.width / 2) - (context.measureText(secondLine.trim()).width / 2), canvas.height - 235);
+
+                    } else {
+                        // Jika cukup dengan font yang diperkecil
+                        context.fillText(name, (canvas.width / 2) - (context.measureText(name).width / 2), canvas.height - 255);
+                    }
+                } else {
+                    // Jika nama muat dalam satu baris dengan font default
+                    context.fillText(name, (canvas.width / 2) - (context.measureText(name).width / 2), canvas.height - 255);
+                }
+
+                // Tambahkan "Nomor Peserta"
+                const noPeserta = document.getElementById('no_peserta').value;
+                context.font = 'bold 40px Arial'; // Ukuran font yang disesuaikan
+                context.fillStyle = '#000';
+                context.fillText(noPeserta, (canvas.width / 2) - (context.measureText(noPeserta).width / 2), canvas.height - 190); // Teks diposisikan di tengah bawah
+
+                // Tambahkan barcode di bawah nama
                 const barcodeCanvas = document.createElement('canvas');
                 JsBarcode(barcodeCanvas, noPeserta, {
                     format: "CODE128",
                     displayValue: false,
-                    width: 1,
-                    height: 30,
+                    width: 2, // Lebar garis barcode yang lebih tebal
+                    height: 60, // Tinggi barcode yang lebih besar agar lebih terlihat
                     margin: 0
                 });
-                context.drawImage(barcodeCanvas, 42, 296, 130, 30);
 
+                // Atur posisi dan ukuran barcode agar lebih sesuai
+                const barcodeWidth = 400; // Lebar barcode yang disesuaikan
+                const barcodeHeight = 80; // Tinggi barcode yang disesuaikan
+                const barcodeX = (canvas.width - barcodeWidth) / 2 - 2; // Pusatkan barcode secara horizontal
+                const barcodeY = canvas.height - 140; // Sesuaikan posisi Y sesuai kebutuhan
+
+                context.drawImage(barcodeCanvas, barcodeX, barcodeY, barcodeWidth, barcodeHeight);
+
+                // Menyimpan data gambar ke input hidden untuk pengiriman
                 imageDataInput.value = canvas.toDataURL('image/png');
             };
         });
