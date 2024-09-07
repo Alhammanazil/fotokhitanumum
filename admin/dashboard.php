@@ -73,9 +73,9 @@ require_once 'header.php';
 
                                     <?php if ($_SESSION['user']['role'] === 'master'): ?>
                                         <!-- Edit -->
-                                        <a href="edit_foto.php?id=<?= $foto['id']; ?>" class="btn btn-warning">
+                                        <!-- <a href="edit_foto.php?id=<?= $foto['id']; ?>" class="btn btn-warning">
                                             <i class="fas fa-edit icon-small"></i>
-                                        </a>
+                                        </a> -->
 
                                         <!-- Hapus -->
                                         <a href="javascript:void(0);" class="btn btn-danger"
